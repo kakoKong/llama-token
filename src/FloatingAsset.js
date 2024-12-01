@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Cookies from "js-cookie";
 
-const FloatingAsset = () => {
+const WixFloatingAsset = () => {
   const [isClicked, setIsClicked] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [path, setPath] = useState({
@@ -157,4 +157,32 @@ const FloatingAsset = () => {
   );
 };
 
-export default FloatingAsset;
+// Wix-specific wrapper
+function WixEmbeddedFloatingAsset() {
+  useEffect(() => {
+    // Ensure the component spans entire Wix page
+    const adjustContainer = () => {
+      const container = document.getElementById('floating-asset-container');
+      if (container) {
+        container.style.position = 'absolute';
+        container.style.top = '0';
+        container.style.left = '0';
+        container.style.width = '100%';
+        container.style.height = '100%';
+        container.style.pointerEvents = 'none';
+        container.style.zIndex = '9999';
+      }
+    };
+
+    adjustContainer();
+    window.addEventListener('resize', adjustContainer);
+
+    return () => {
+      window.removeEventListener('resize', adjustContainer);
+    };
+  }, []);
+
+  return <WixFloatingAsset />;
+}
+
+export default WixEmbeddedFloatingAsset;
