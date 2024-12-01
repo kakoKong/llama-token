@@ -11,34 +11,61 @@ const FloatingAsset = () => {
   });
 
   useEffect(() => {
-    // Only generate path if the asset hasn't been clicked
-    if (!isClicked) {
-      const generateSmoothPath = () => {
-        const newPath = {
-          x: path.x.map((_, index) => 
-            index === 0 
-              ? path.x[path.x.length - 1]
-              : Math.random() * window.innerWidth * 0.8
-          ),
-          y: path.y.map((_, index) => 
-            index === 0 
-              ? path.y[path.y.length - 1]
-              : Math.random() * window.innerHeight * 0.8
-          )
-        };
-        
-        setPath(newPath);
+    // Ensure client-side rendering only
+    if (typeof window !== 'undefined') {
+      // Function to get total document height
+      const getDocumentHeight = () => {
+        return Math.max(
+          document.body.scrollHeight, 
+          document.body.offsetHeight, 
+          document.documentElement.clientHeight, 
+          document.documentElement.scrollHeight, 
+          document.documentElement.offsetHeight
+        );
       };
 
-      const moveInterval = setInterval(generateSmoothPath, 10000);
-      return () => clearInterval(moveInterval);
+      // Function to get total document width
+      const getDocumentWidth = () => {
+        return Math.max(
+          document.body.scrollWidth, 
+          document.body.offsetWidth, 
+          document.documentElement.clientWidth, 
+          document.documentElement.scrollWidth, 
+          document.documentElement.offsetWidth
+        );
+      };
+
+      // Only generate path if the asset hasn't been clicked
+      if (!isClicked) {
+        const generateSmoothPath = () => {
+          const documentHeight = getDocumentHeight();
+          const documentWidth = getDocumentWidth();
+
+          const newPath = {
+            x: path.x.map((_, index) => 
+              index === 0 
+                ? path.x[path.x.length - 1]
+                : Math.random() * (documentWidth * 0.8)
+            ),
+            y: path.y.map((_, index) => 
+              index === 0 
+                ? path.y[path.y.length - 1]
+                : Math.random() * (documentHeight * 0.8)
+            )
+          };
+          
+          setPath(newPath);
+        };
+
+        const moveInterval = setInterval(generateSmoothPath, 10000);
+        return () => clearInterval(moveInterval);
+      }
     }
   }, [isClicked, path]);
 
-  const handleClick = (event) => {
+  const handleClick = () => {
     setIsClicked(true);
     setShowModal(true);
-
     Cookies.set("assetClicked", "true", { expires: 1 }); // Valid for 1 day
   };
 
@@ -56,7 +83,7 @@ const FloatingAsset = () => {
               width: "100px",
               height: "100px",
               background: "url('/llama.png') no-repeat center/contain",
-              position: "fixed",
+              position: "absolute", // Changed from fixed to absolute
               cursor: "pointer",
               zIndex: 999,
             }}
@@ -82,11 +109,45 @@ const FloatingAsset = () => {
 
       {/* Modal */}
       {showModal && (
-        <div className="modal-overlay" style={modalStyles.overlay}>
-          <div className="modal-content" style={modalStyles.content}>
+        <div 
+          className="modal-overlay" 
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 1000,
+          }}
+        >
+          <div 
+            className="modal-content"
+            style={{
+              background: '#fff',
+              padding: '20px',
+              borderRadius: '10px',
+              textAlign: 'center',
+              width: '300px',
+            }}
+          >
             <h2>🎉 Congratulations! 🎉</h2>
             <p>You've unlocked a reward! Continue to this <a href="nani">website</a> to claim rewards</p>
-            <button onClick={handleCloseModal} style={modalStyles.button}>
+            <button 
+              onClick={handleCloseModal}
+              style={{
+                marginTop: '10px',
+                padding: '10px 20px',
+                background: '#007BFF',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '5px',
+                cursor: 'pointer',
+              }}
+            >
               Close
             </button>
           </div>
@@ -94,38 +155,6 @@ const FloatingAsset = () => {
       )}
     </>
   );
-};
-
-// Inline styles for modal
-const modalStyles = {
-  overlay: {
-    position: "fixed",
-    top: 0,
-    left: 0,
-    width: "100%",
-    height: "100%",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    zIndex: 1000,
-  },
-  content: {
-    background: "#fff",
-    padding: "20px",
-    borderRadius: "10px",
-    textAlign: "center",
-    width: "300px",
-  },
-  button: {
-    marginTop: "10px",
-    padding: "10px 20px",
-    background: "#007BFF",
-    color: "#fff",
-    border: "none",
-    borderRadius: "5px",
-    cursor: "pointer",
-  },
 };
 
 export default FloatingAsset;
