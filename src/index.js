@@ -3,11 +3,13 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import reportWebVitals from './reportWebVitals';
 import WixEmbeddedFloatingAsset from './FloatingAsset';
+import StaticAsset from './StaticAsset';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <WixEmbeddedFloatingAsset />
+    <StaticAsset />
+    {/* <WixEmbeddedFloatingAsset /> */}
   </React.StrictMode>
 );
 
